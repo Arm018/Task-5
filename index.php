@@ -1,29 +1,7 @@
 <?php
-    $localhost = 'localhost';
-    $db_name = 'blog';
-    $username = 'root';
-    $password = '';
 
-    $pagination_count = 2;
-    $page = $_GET['page'];
-    $offset = ($page - 1) * $pagination_count;
-
-    try {
-
-        $conn = new PDO("mysql:host=$localhost;dbname=$db_name", $username, $password);
-        $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-        $stmt = $conn->prepare('SELECT * FROM blog_posts LIMIT :limit OFFSET :offset');
-        $stmt->bindParam(':limit',$pagination_count,PDO::PARAM_INT);
-        $stmt->bindParam(':offset',$offset,PDO::PARAM_INT);
-
-        $stmt->execute();
-
-        $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    }catch (Exception $e){
-        echo 'Error ' . $e->getMessage();
-    }
+    require 'pagination.php';
+    require 'connect.php';
 
     ?>
 <!doctype html>
@@ -59,25 +37,10 @@
     </div>
 
     <div class="pagination">
-        <?php
-            $stmt = $conn->prepare('SELECT COUNT(*) AS total FROM blog_posts');
-            $stmt->execute();
-
-            $total_posts = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
-            $pages = ceil($total_posts / $pagination_count);
-
-            for ($i = 1; $i <= $pages; $i++) {
-                if ($i == $page)
-                {
-                    echo '<span>' . $i . '</span>';
-                }else
-                {
-                    echo '<a href="?page=' . $i . '">' . $i . '</a>';
-                }
-            }
-
-    ?>
-        </div>
+        <?php foreach ($paginations as $pagination): ?>
+            <?= $pagination; ?>
+        <?php endforeach; ?>
+    </div>
 
     </body>
 </html>
